@@ -740,46 +740,53 @@
         </div>
     </footer>
 
-    <!-- EmailJS SDK -->
-     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
-    
-    <!-- Add config import -->
-    <script type="module">
-        import config from './config.js';
-        window.config = config;
-    </script>
+   <!-- EmailJS SDK -->
+<script type="text/javascript" src="https://cdn.emailjs.com/dist/email.min.js"></script>
 
-    <!-- JavaScript for Interactive Elements -->
-    <script>
-        // Initialize EmailJS with config
-        (function(){
+<!-- Add config import -->
+<script type="module">
+    import config from './config.js';
+    window.config = config;
+</script>
+
+<!-- JavaScript for Interactive Elements -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        if (window.config && window.config.emailjs) {
             emailjs.init(window.config.emailjs.publicKey);
-        })();
-
-        // Burger Menu Toggle code remains the same
+        } else {
+            console.error("EmailJS config is missing!");
+            return;
+        }
 
         // EmailJS Form Submission Handling
         const form = document.getElementById('contact-form');
         const message = document.getElementById('form-message');
 
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
+        if (form) {
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
 
-            const serviceID = window.config.emailjs.serviceID;
-            const templateID = window.config.emailjs.templateID;
+                const { serviceID, templateID } = window.config.emailjs;
 
-            emailjs.sendForm(serviceID, templateID, this)
-                .then(() => {
-                    message.style.display = 'block';
-                    message.style.color = '#4CAF50';
-                    message.textContent = "Thank you! Your message has been sent.";
-                    form.reset();
-                }, (err) => {
-                    message.style.display = 'block';
-                    message.style.color = '#f44336';
-                    message.textContent = "Oops! There was a problem submitting your form.";
-                    console.error('FAILED...', err);
-                });
+                emailjs.sendForm(serviceID, templateID, this)
+                    .then(() => {
+                        message.style.display = 'block';
+                        message.style.color = '#4CAF50';
+                        message.textContent = "Thank you! Your message has been sent.";
+                        form.reset();
+                    })
+                    .catch(err => {
+                        message.style.display = 'block';
+                        message.style.color = '#f44336';
+                        message.textContent = "Oops! There was a problem submitting your form.";
+                        console.error('EmailJS error:', err);
+                    });
+            });
+        } else {
+            console.error("Contact form not found!");
+        }
+    });
         });
 
         // Intersection Observer for smoother, on-scroll animations
