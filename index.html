@@ -740,27 +740,26 @@
         </div>
     </footer>
 
-  <!-- EmailJS SDK -->
+ <!-- EmailJS SDK -->
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
 
 <!-- Import Config -->
 <script type="module">
     import config from './config.js';
     window.config = config;
-
-    // Initialize EmailJS once config is loaded
-    document.addEventListener("DOMContentLoaded", () => {
-        if (window.config && window.config.emailjs) {
-            emailjs.init(window.config.emailjs.publicKey);
-        } else {
-            console.error("EmailJS config is missing!");
-        }
-    });
 </script>
 
 <!-- JavaScript for Interactive Elements -->
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
+    window.onload = function () {
+        // Initialize EmailJS after everything loads
+        if (window.config && window.config.emailjs) {
+            emailjs.init(window.config.emailjs.publicKey);
+            console.log("✅ EmailJS Initialized");
+        } else {
+            console.error("❌ EmailJS config is missing!");
+        }
+
         // Burger Menu Toggle
         const burger = document.querySelector('.burger');
         const navLinks = document.querySelector('.nav-links');
@@ -813,64 +812,66 @@
         const message = document.getElementById('form-message');
 
         if (form) {
-            form.addEventListener('submit', function(e) {
-                e.preventDefault();
+            form.addEventListener('submit', function (e) {
+                e.preventDefault(); // Prevent form refresh
+                
+                console.log("📨 Form submitted, preparing to send...");
 
                 const { serviceID, templateID } = window.config.emailjs;
 
                 emailjs.sendForm(serviceID, templateID, this)
                     .then(() => {
+                        console.log("✅ Email sent successfully!");
                         message.style.display = 'block';
                         message.style.color = '#4CAF50';
                         message.textContent = "Thank you! Your message has been sent.";
                         form.reset();
                     })
                     .catch(err => {
+                        console.error("❌ EmailJS error:", err);
                         message.style.display = 'block';
                         message.style.color = '#f44336';
                         message.textContent = "Oops! There was a problem submitting your form.";
-                        console.error('EmailJS error:', err);
                     });
             });
         } else {
-            console.error("Contact form not found!");
+            console.error("❌ Contact form not found!");
         }
-   });
 
         // Intersection Observer for smoother, on-scroll animations
-        document.addEventListener("DOMContentLoaded", function() {
-            const animatedElements = document.querySelectorAll(
-                ".hero h1, .hero p, .btn-primary, " +
-                "#about h2, #about p, " +
-                "#projects h2, .project-card h3, .project-card p, .btn-secondary, " +
-                "#skills h2, .skill-card h3, .skill-card p, " +
-                "#contact h2, .contact-form button, " +
-                "#donation h2"
-            );
+        const animatedElements = document.querySelectorAll(
+            ".hero h1, .hero p, .btn-primary, " +
+            "#about h2, #about p, " +
+            "#projects h2, .project-card h3, .project-card p, .btn-secondary, " +
+            "#skills h2, .skill-card h3, .skill-card p, " +
+            "#contact h2, .contact-form button, " +
+            "#donation h2"
+        );
 
-            animatedElements.forEach(elem => {
-                elem.style.opacity = 0;
-                elem.style.animation = "none";
+        animatedElements.forEach(elem => {
+            elem.style.opacity = 0;
+            elem.style.animation = "none";
+        });
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animation = "fadeInUp 1.2s ease-out forwards";
+                    observer.unobserve(entry.target);
+                }
             });
+        }, { threshold: 0.2 });
 
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.style.animation = "fadeInUp 1.2s ease-out forwards";
-                        observer.unobserve(entry.target);
-                    }
-                });
-            }, { threshold: 0.2 });
-
-            animatedElements.forEach(elem => {
-                observer.observe(elem);
-            });
+        animatedElements.forEach(elem => {
+            observer.observe(elem);
         });
 
         // Lazy Load Images
         const lazyLoadInstance = new LazyLoad({
             elements_selector: "img[loading='lazy']"
         });
-    </script>
+    };
+</script>
+
 </body>
 </html>
