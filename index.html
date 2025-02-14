@@ -740,31 +740,80 @@
         </div>
     </footer>
 
-   <!-- EmailJS SDK -->
-<script type="text/javascript" src="https://cdn.emailjs.com/dist/email.min.js"></script>
+  <!-- EmailJS SDK -->
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
 
-<!-- Add config import -->
+<!-- Import Config -->
 <script type="module">
     import config from './config.js';
     window.config = config;
+
+    // Initialize EmailJS once config is loaded
+    document.addEventListener("DOMContentLoaded", () => {
+        if (window.config && window.config.emailjs) {
+            emailjs.init(window.config.emailjs.publicKey);
+        } else {
+            console.error("EmailJS config is missing!");
+        }
+    });
 </script>
 
 <!-- JavaScript for Interactive Elements -->
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-        if (window.config && window.config.emailjs) {
-            emailjs.init(window.config.emailjs.publicKey);
-        } else {
-            console.error("EmailJS config is missing!");
-            return;
-        }
+        // Burger Menu Toggle
+        const burger = document.querySelector('.burger');
+        const navLinks = document.querySelector('.nav-links');
+        const navLinkItems = document.querySelectorAll('.nav-links li');
+
+        burger.addEventListener('click', () => {
+            navLinks.classList.toggle('nav-active');
+            navLinkItems.forEach((link, index) => {
+                if (link.style.animation) {
+                    link.style.animation = '';
+                } else {
+                    link.style.animation = `navLinkFade 0.5s ease forwards ${index / 7 + 0.3}s`;
+                }
+            });
+            burger.classList.toggle('toggle');
+        });
+
+        // Smooth Scrolling for Navigation Links
+        const navItems = document.querySelectorAll('.nav-links a');
+
+        navItems.forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = item.getAttribute('href').substring(1);
+                const targetSection = document.getElementById(targetId);
+                targetSection.scrollIntoView({ behavior: 'smooth' });
+
+                if (navLinks.classList.contains('nav-active')) {
+                    navLinks.classList.remove('nav-active');
+                    burger.classList.remove('toggle');
+                    navLinkItems.forEach(link => {
+                        link.style.animation = '';
+                    });
+                }
+            });
+        });
+
+        // Change Navbar Background on Scroll
+        window.addEventListener('scroll', () => {
+            const navbar = document.getElementById('navbar');
+            if (window.scrollY > 100) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
 
         // EmailJS Form Submission Handling
         const form = document.getElementById('contact-form');
         const message = document.getElementById('form-message');
 
         if (form) {
-            form.addEventListener('submit', function (e) {
+            form.addEventListener('submit', function(e) {
                 e.preventDefault();
 
                 const { serviceID, templateID } = window.config.emailjs;
@@ -786,8 +835,7 @@
         } else {
             console.error("Contact form not found!");
         }
-    });
-        });
+   });
 
         // Intersection Observer for smoother, on-scroll animations
         document.addEventListener("DOMContentLoaded", function() {
